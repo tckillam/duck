@@ -25,15 +25,15 @@ const int vHeight = 500;    // Viewport height in pixels
 // Note how everything depends on robot body dimensions so that can scale entire robot proportionately
 // just by changing robot body scale
 float bodyRadius = 3.0;
-float headRadius = 0.6* bodyRadius;
-float beakRadius = 0.6 * headRadius;
-float beakLength = 0.7 * headRadius;
-float tailRadius = 0.45 * bodyRadius;
-float tailLength = 0.5 * bodyRadius;
+float headRadius = 0.6f * bodyRadius;
+float beakRadius = 0.6f * headRadius;
+float beakLength = 0.7f * headRadius;
+float tailRadius = 0.45f * bodyRadius;
+float tailLength = 0.5f * bodyRadius;
 
 float upperArmLength = bodyRadius;
-float upperArmWidth = 0.125* bodyRadius;
-float gunLength = upperArmLength / 4.0;
+float upperArmWidth = 0.125f * bodyRadius;
+float gunLength = upperArmLength / 4.0f;
 float gunWidth = upperArmWidth;
 float gunDepth = upperArmWidth;
 float boothLength = 20;
@@ -117,6 +117,10 @@ void drawBody();
 void drawBooth();
 //void drawLeftArm();
 //void drawRightArm();
+void spinUp();
+void spinDown();
+void LtoR();
+void RtoL();
 
 int main(int argc, char **argv)
 {
@@ -186,7 +190,7 @@ void initOpenGL(int w, int h)
 	Vector3 ambient = Vector3(0.0f, 0.05f, 0.0f);
 	Vector3 diffuse = Vector3(0.4f, 0.8f, 0.4f);
 	Vector3 specular = Vector3(0.04f, 0.04f, 0.04f);
-	float shininess = 0.2;
+	float shininess = 0.2f;
 	groundMesh->SetMaterial(ambient, diffuse, specular, shininess);
 
 	cubeMesh = new CubeMesh();
@@ -215,7 +219,7 @@ void display(void)
 	// ModelView matrix is set to IV, where I is identity matrix
 	// M = IV
 	drawDuck();
-	glutTimerFunc(10, animationHandler, 0);
+	//glutTimerFunc(10, animationHandler, 0);
 	
 
 	/*
@@ -251,7 +255,7 @@ void drawDuck()
 	   //glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
 	   
 	   
-	   
+
 	   
 	   //glTranslatef(5, -3, 0); // translate duck left and right
 	   //glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
@@ -267,14 +271,45 @@ void drawDuck()
 	  //glPopMatrix(); // restore M = IV
 
 
-		glPushMatrix();
-		glTranslatef(duckPosX + 5, -3, 0); // translate duck left and right
-	    glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
-	    glTranslatef(duckPosX -2, duckPosY + 3, 0);
-		drawBody();
-		glPopMatrix();
+
+    // flip duck up
+	glPushMatrix();
+	//glTranslatef(-7, -3, 0); // translate duck left and right
+	//glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
+	//glTranslatef(7, 3, 0);
+	//glTranslatef(-7, 0, 0);
+	//drawBody();
+	spinUp();
+	glPopMatrix();
+
+	// flip duck down
+	glPushMatrix();
+	glTranslatef(7, -3, 0); // translate duck left and right
+	glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
+	glTranslatef(-7, 3, 0);
+	glTranslatef(7, 0, 0);
+	drawBody();
+	glPopMatrix();
+
+	// left to right
+	glPushMatrix();
+	glTranslatef(duckPosX, 0, 0);
+	drawBody();
+	glPopMatrix();	
+
+	// right to left
+	glPushMatrix();
+	glRotatef(180, 0, 0, -1); // to make the duck face forward	
+	glTranslatef(duckPosX, 6, 0); 
+	drawBody();
+	glPopMatrix();
 	
 	  
+
+
+
+
+
 
 	  // don't want to spin fixed base plate for this duck example so this is done outside of 
 	  // robot push/pop above so it doesn't "inherit" the R_y(duckAngle)
@@ -283,6 +318,48 @@ void drawDuck()
 	glPopMatrix();
 }
 
+void spinDown(){
+
+	glPushMatrix();
+	glTranslatef(7, -3, 0); // translate duck left and right
+	glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
+	glTranslatef(-7, 3, 0);
+	glTranslatef(7, 0, 0);
+	drawBody();
+	glPopMatrix();
+
+}
+
+void spinUp() {
+
+	glPushMatrix();
+	glTranslatef(-7, -3, 0); // translate duck left and right
+	glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
+	glTranslatef(7, 3, 0);
+	glTranslatef(-7, 0, 0);
+	drawBody();
+	glPopMatrix();
+
+}
+
+void LtoR() {
+
+	glPushMatrix();
+	glTranslatef(duckPosX, 0, 0);
+	drawBody();
+	glPopMatrix();
+
+}
+
+void RtoL() {
+
+	glPushMatrix();
+	glRotatef(180, 0, 0, -1); // to make the duck face forward	
+	glTranslatef(duckPosX, 6, 0);
+	drawBody();
+	glPopMatrix();
+
+}
 
 void drawBody()
 {
