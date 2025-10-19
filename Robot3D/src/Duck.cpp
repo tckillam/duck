@@ -43,10 +43,16 @@ float boothLength = 20;
 
 // Control duck body rotation on base
 float duckAngle = 0;
+float duckAngle2 = 180;
 
+float counterR = 0;
+float counterL = 0;
+float counterU = 180;
+float counterD = 0;
 
 ///////////////// my attempt to animate the duck left to right
 float duckPosX = -7;
+float duckPosX2 = -7;
 float duckPosY = 0;
 float duckDirection = 1;
 
@@ -270,45 +276,57 @@ void drawDuck()
 	   //drawRightArm();
 	  //glPopMatrix(); // restore M = IV
 
+	// write out the duck coordnates to the console in a formatted string
+	printf("Coordinates: duckPosX = %.4f, duckPosY = %.4f, duckAngle = %.4f\n", duckPosX, duckPosY, duckAngle);
+	printf("Coordinates: counterR = %.4f, counterL = %.4f, counterD = %.4f, counterU = %.4f\n\n", counterR, counterL, counterD, counterU);
 
-
-    // flip duck up
+	/*
 	glPushMatrix();
-	//glTranslatef(-7, -3, 0); // translate duck left and right
-	//glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
-	//glTranslatef(7, 3, 0);
-	//glTranslatef(-7, 0, 0);
-	//drawBody();
-	spinUp();
+	if (duckPosX >= 7.0f && duckAngle < 180) {
+		spinDown();
+		//duckPosX = 7;
+	}
+	else if (duckPosX <= -7.0f || duckPosX >= 21.0f) {
+		spinUp();
+		//duckPosX = 21;
+	}
+	else if (duckPosX < 7.0f && duckPosY == 0.0f) {
+		duckAngle = 0;
+		LtoR();
+	}
+	else if (duckPosX > 7.0f && duckPosY == 0.0f) {
+		duckAngle = 180;
+		RtoL();
+	}
+	*/
+
+	if (counterU >= 180 && counterR <= 14) {
+		duckPosX2 = -7;
+		duckAngle = 0;
+		LtoR();
+	} 
+	else if (counterR > 14 && counterD <= 180) {
+		counterU = 0;
+		counterL = 0;
+		spinDown();
+	}
+	else if (counterD > 180 && counterL <= 14) {
+		counterR = 0;
+		duckPosX = -7;
+		duckAngle2 = 180;
+		RtoL();
+	}
+	else if (counterL > 14 && counterU < 180) {
+		counterD = 0;
+		counterR = 0;
+		spinUp();
+	}
+
+	//spinDown();
+	//spinUp();
+	//LtoR();
+	//RtoL();
 	glPopMatrix();
-
-	// flip duck down
-	glPushMatrix();
-	glTranslatef(7, -3, 0); // translate duck left and right
-	glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
-	glTranslatef(-7, 3, 0);
-	glTranslatef(7, 0, 0);
-	drawBody();
-	glPopMatrix();
-
-	// left to right
-	glPushMatrix();
-	glTranslatef(duckPosX, 0, 0);
-	drawBody();
-	glPopMatrix();	
-
-	// right to left
-	glPushMatrix();
-	glRotatef(180, 0, 0, -1); // to make the duck face forward	
-	glTranslatef(duckPosX, 6, 0); 
-	drawBody();
-	glPopMatrix();
-	
-	  
-
-
-
-
 
 
 	  // don't want to spin fixed base plate for this duck example so this is done outside of 
@@ -330,11 +348,12 @@ void spinDown(){
 
 }
 
+
 void spinUp() {
 
 	glPushMatrix();
 	glTranslatef(-7, -3, 0); // translate duck left and right
-	glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
+	glRotatef(duckAngle2, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
 	glTranslatef(7, 3, 0);
 	glTranslatef(-7, 0, 0);
 	drawBody();
@@ -355,7 +374,7 @@ void RtoL() {
 
 	glPushMatrix();
 	glRotatef(180, 0, 0, -1); // to make the duck face forward	
-	glTranslatef(duckPosX, 6, 0);
+	glTranslatef(duckPosX2, 6, 0);
 	drawBody();
 	glPopMatrix();
 
@@ -602,19 +621,23 @@ void keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 't':
-
+		duckAngle2 += 2.0;
+		counterU += 2.0;
 		break;
 	case 'r':
 		duckAngle += 2.0;
+		counterD += 2.0;
 		break;
 	case 'R':
 		duckAngle -= 2.0;
 		break;
 	case 'a':
 		duckPosX += 0.05; 
+		counterR += 0.05;
 		break;
-	case 'A':
-		duckPosX -= 0.05;
+	case 'f':
+		duckPosX2 += 0.05;
+		counterL += 0.05;
 		break;
 	case 'g':
 		duckPosY += 0.05;
@@ -636,12 +659,7 @@ void keyboard(unsigned char key, int x, int y)
 
 void animationHandler(int param)
 {
-	if (duckPosX < 8 && duckPosX > -8)
-	{
-		duckPosX += 0.00004;
-	}
-	glutPostRedisplay();
-	glutTimerFunc(10, animationHandler, 0);
+	
 }
 
 /*
