@@ -225,7 +225,7 @@ void display(void)
 	// ModelView matrix is set to IV, where I is identity matrix
 	// M = IV
 	drawDuck();
-	//glutTimerFunc(10, animationHandler, 0);
+	glutTimerFunc(10, animationHandler, 0);
 	
 
 	/*
@@ -659,7 +659,33 @@ void keyboard(unsigned char key, int x, int y)
 
 void animationHandler(int param)
 {
-	
+	if (counterU >= 180 && counterR <= 14) {
+		duckPosX2 = -7;
+		duckAngle = 0;
+		duckPosX += 0.00005;
+		counterR += 0.00005;
+	}
+	else if (counterR > 14 && counterD <= 180) {
+		counterU = 0;
+		counterL = 0;
+		duckAngle += 0.002;
+		counterD += 0.002;
+	}
+	else if (counterD > 180 && counterL <= 14) {
+		counterR = 0;
+		duckPosX = -7;
+		duckAngle2 = 180;
+		duckPosX2 += 0.00005;
+		counterL += 0.00005;
+	}
+	else if (counterL > 14 && counterU < 180) {
+		counterD = 0;
+		counterR = 0;
+		duckAngle2 += 0.002;
+		counterU += 0.002;
+	}
+	glutPostRedisplay();
+	glutTimerFunc(10, animationHandler, 0);
 }
 
 /*
