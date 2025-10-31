@@ -17,6 +17,7 @@
 
 // so i can use remainder on duckAngle
 #include <cmath>
+#include <math.h>
 
 
 const int vWidth = 650;    // Viewport width in pixels
@@ -46,13 +47,13 @@ float duckAngle = 0;
 float duckAngle2 = 180;
 
 float amplitude = 0.2f;   // Height of the sine wave
-float frequency = 4.0f;   // Controls number of waves
+float frequency = 3.0f;   // Controls number of waves
 float length = boothLength;      // Length of the wall
 float height = 2.0f;      // Height of the wall
 
 ///////////////// my attempt to animate the duck left to right
-float duckPosX = -7;
-float duckPosX2 = -7;
+float duckPosX = -7.0f;
+float duckPosX2 = -7.0f;
 float duckPosY = 0;
 float duckDirection = 1;
 
@@ -133,16 +134,19 @@ void RtoL();
 
 void drawWaterWave();
 
+// this was chatgpt
 void drawWaterWave() {
 	// Save current OpenGL color and lighting state
 	glPushAttrib(GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
 
 	// Disable lighting or color material side effects
 	glDisable(GL_LIGHTING);  // <- easiest way to keep color pure
-	glColor3f(0.0f, 0.0f, 1.0f);  // solid blue
+	glColor3f(0.4f, 0.7f, 1.0f);  // light blue water
+
+	float depth = 0.5f;     // how thick the water wall is
+	int segments = 100;
 
 	glBegin(GL_QUADS);
-	int segments = 100;
 	for (int i = 0; i < segments; i++) {
 		float x1 = (i / (float)segments) * length - length / 2;
 		float x2 = ((i + 1) / (float)segments) * length - length / 2;
@@ -150,10 +154,27 @@ void drawWaterWave() {
 		float y1 = sin(frequency * x1) * amplitude + height;
 		float y2 = sin(frequency * x2) * amplitude + height;
 
+		// FRONT FACE (z = 0)
 		glVertex3f(x1, 0.0f, 0.0f);
 		glVertex3f(x2, 0.0f, 0.0f);
 		glVertex3f(x2, y2, 0.0f);
 		glVertex3f(x1, y1, 0.0f);
+
+		// BACK FACE (z = -depth)
+		glVertex3f(x1, 0.0f, -depth);
+		glVertex3f(x2, 0.0f, -depth);
+		glVertex3f(x2, y2, -depth);
+		glVertex3f(x1, y1, -depth);
+
+		// TOP FACE (connect front & back along sine)
+		glColor3f(0.2f, 0.5f, 0.8f);  // darker blue for top
+		glVertex3f(x1, y1, 0.0f);
+		glVertex3f(x2, y2, 0.0f);
+		glVertex3f(x2, y2, -depth);
+		glVertex3f(x1, y1, -depth);
+
+		// reset color for next face
+		glColor3f(0.4f, 0.7f, 1.0f);
 	}
 	glEnd();
 
@@ -287,6 +308,7 @@ void display(void)
 
 	// draw water wave
 	glPushMatrix();
+	glTranslatef(0.0, -3.0, 0.0);
 	drawWaterWave();
 	glPopMatrix();
 
@@ -663,17 +685,21 @@ void animationHandler(int param)
 {
 	if ((duckAngle == 0.0f || duckAngle >= 360.0f) && duckPosX < 7.0f) {
 		duckAngle = 0.0f;
+		duckPosY = amplitude * sin(((2.0f * 3.14159f) / frequency) * duckPosX);
 		duckPosX += 0.00005;
 	}
 	else if (duckPosX >= 7.0f && duckAngle < 180.0f) {
 		duckAngle += 0.0005;
+		duckPosY = 0;
 	}
 	else if (duckAngle >= 180.0f && duckPosX > -7.0f) {
 		duckAngle = 180.0f;
 		duckPosX -= 0.00005;
+		duckPosY = 0;
 	}
 	else if (duckPosX <= -7.0f && duckAngle < 360.0f) {
 		duckAngle += 0.0005;
+		duckPosY = 0;
 	}
 	glutPostRedisplay();
 	glutTimerFunc(10, animationHandler, 0);
