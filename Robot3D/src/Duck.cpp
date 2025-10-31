@@ -46,6 +46,10 @@ float boothLength = 20;
 float duckAngle = 0;
 float duckAngle2 = 180;
 
+float rotateX = 0.0f;
+float rotateY = 0.0f;
+float rotateZ = -1.0f;
+
 float amplitude = 0.2f;   // Height of the sine wave
 float frequency = 3.0f;   // Controls number of waves
 float length = boothLength;      // Length of the wall
@@ -283,7 +287,7 @@ void display(void)
 	glPushMatrix();
 	glTranslatef(duckPosX, duckPosY, 0);
 	glTranslatef(0, -2, 0);
-	glRotatef(duckAngle, 0.0, 0.0, -1.0);
+	glRotatef(duckAngle, rotateX, rotateY, rotateZ);
 	glTranslatef(0, 2, 0);
 	drawBody();
 	glPopMatrix();
@@ -656,11 +660,15 @@ void keyboard(unsigned char key, int x, int y)
 	case 'a':
 		duckPosX += 0.05;
 		break;
-	case 'A':
-		duckPosX -= 0.05;
+	case 'F':
+		duckAngle += 2.0;
+		rotateX = -1.0;
+		rotateZ = 0.0;
 		break;
 	case 'f':
-		duckPosX2 += 0.05;
+		duckAngle += 2.0;
+		rotateX = -1.0;
+		rotateZ = 0.0;
 		break;
 	case 'g':
 		duckPosY += 0.05;
@@ -685,7 +693,7 @@ void animationHandler(int param)
 {
 	if ((duckAngle == 0.0f || duckAngle >= 360.0f) && duckPosX < 7.0f) {
 		duckAngle = 0.0f;
-		duckPosY = amplitude * sin(((2.0f * 3.14159f) / frequency) * duckPosX);
+		duckPosY = amplitude * sin(frequency*duckPosX);
 		duckPosX += 0.00005;
 	}
 	else if (duckPosX >= 7.0f && duckAngle < 180.0f) {
@@ -694,7 +702,7 @@ void animationHandler(int param)
 	}
 	else if (duckAngle >= 180.0f && duckPosX > -7.0f) {
 		duckAngle = 180.0f;
-		duckPosX -= 0.00005;
+		duckPosX -= 0.0005;
 		duckPosY = 0;
 	}
 	else if (duckPosX <= -7.0f && duckAngle < 360.0f) {
