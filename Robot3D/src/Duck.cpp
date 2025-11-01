@@ -130,6 +130,7 @@ void mouseMotionHandler(int xMouse, int yMouse);
 void keyboard(unsigned char key, int x, int y);
 void functionKeys(int key, int x, int y);
 void animationHandler(int param);
+void animationDuckFlip(int param);
 void drawDuck();
 void drawBody();
 //void drawHead();
@@ -659,7 +660,7 @@ void keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'f':
-		duckAngle2 += 2.0;
+		glutTimerFunc(10, animationDuckFlip, 0);
 		break;
 	case 'F':
 		duckAngle2 += 2.0;
@@ -690,6 +691,7 @@ void animationHandler(int param)
 	}
 	else if (duckAngle >= 180.0f && duckPosX > -7.0f) {
 		duckAngle = 180.0f;
+		duckAngle2 = 0.0f;
 		duckPosX -= 0.0005;
 		duckPosY = 0;
 	}
@@ -699,6 +701,18 @@ void animationHandler(int param)
 	}
 	glutPostRedisplay();
 	glutTimerFunc(10, animationHandler, 0);
+}
+
+void animationDuckFlip(int param)
+{
+	if ((duckAngle == 0.0f || duckAngle >= 360.0f) && duckPosX < 7.0f && duckAngle2 <= 90) {
+		duckAngle2 += 9;
+		glutTimerFunc(50, animationDuckFlip, 0);
+	}
+	else {
+		duckAngle2 = 90.0f;
+	}
+	glutPostRedisplay();
 }
 
 // Callback, handles input from the keyboard, function and arrow keys
