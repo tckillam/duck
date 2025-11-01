@@ -6,3 +6,5 @@
 /extern/glew-1.10.0/lib
 /extern/freeglut-2.8.1/lib
 .vs/
+/Robot3D/bin/Robot3Dd.exe
+/Robot3D/bin/Robot3Dd.pdb
