@@ -137,14 +137,10 @@ void drawBody();
 void drawBooth();
 //void drawLeftArm();
 //void drawRightArm();
-void spinUp();
-void spinDown();
-void LtoR();
-void RtoL();
 
 void drawWaterWave();
 
-// this was chatgpt
+// this was chatgpt as we were supposed to use for requirement 8
 void drawWaterWave() {
 	// Save current OpenGL color and lighting state
 	glPushAttrib(GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT);
@@ -283,7 +279,7 @@ void display(void)
 	glLoadIdentity(); // M = I
 	// Create Viewing Matrix V
 	// Set up the camera at position (0, 6, 22) looking at the origin, up along positive y axis
-	gluLookAt(cameraX, cameraY, cameraZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0); // M = IV
+	gluLookAt(0, 6, 22, 0.0, 0.0, 0, 0.0, 1.0, 0.0); // M = IV
 
 	// Draw Robot
 	// Apply modelling transformations M to move robot
@@ -340,26 +336,6 @@ void drawDuck()
 {
 	glPushMatrix(); // copy M = IV and push onto the stack
 
-	//glPushMatrix(); // copy M = IV and push onto the stack
-	 // spin entire duck (except base) on base plate. 
-	 //glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
-
-
-
-
-	 //glTranslatef(5, -3, 0); // translate duck left and right
-	 //glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
-	 //glTranslatef(-2, duckPosY + 3, 0);
-
-	//glTranslatef(duckPosX, duckPosY, 0);
-
-
-	 //drawBody();
-	 //drawHead();
-	 //drawLeftArm();
-	 //drawRightArm();
-	//glPopMatrix(); // restore M = IV
-
   // write out the duck coordnates to the console in a formatted string
 	printf("Coordinates: duckPosX = %.4f\n", duckPosX);
 	printf("Coordinates: duckAngle = %.4f\n\n", duckAngle);
@@ -373,50 +349,6 @@ void drawDuck()
 	drawBooth();
 
 	glPopMatrix();
-}
-
-void spinDown() {
-
-	glPushMatrix();
-	glTranslatef(7, -3, 0); // translate duck left and right
-	glRotatef(duckAngle, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
-	glTranslatef(-7, 3, 0);
-	glTranslatef(7, 0, 0);
-	//drawBody();
-	glPopMatrix();
-
-}
-
-
-void spinUp() {
-
-	glPushMatrix();
-	glTranslatef(-7, -3, 0); // translate duck left and right
-	glRotatef(duckAngle2, 0.0, 0.0, -1.0); // M = I V R_y(duckAngle)
-	glTranslatef(7, 3, 0);
-	glTranslatef(-7, 0, 0);
-	//drawBody();
-	glPopMatrix();
-
-}
-
-void LtoR() {
-
-	glPushMatrix();
-	glTranslatef(duckPosX, 0, 0);
-	//drawBody();
-	glPopMatrix();
-
-}
-
-void RtoL() {
-
-	glPushMatrix();
-	glRotatef(180, 0, 0, -1); // to make the duck face forward	
-	glTranslatef(duckPosX2, 6, 0);
-	//drawBody();
-	glPopMatrix();
-
 }
 
 void drawBody()
@@ -514,14 +446,11 @@ void drawBooth()
 	glMaterialfv(GL_FRONT, GL_SHININESS, booth_mat_shininess);
 
 	glPushMatrix();
-	// Position stanchion and base plate with respect to parent part (the body)
 	glTranslatef(0, 0, 0); // this will be done last
-
-
 
 	// booth left
 	glPushMatrix();
-	glTranslatef(-9, 0, 0);
+	glTranslatef(-10, 0, 0);
 	glScalef(boothLength * 0.1, boothLength, boothLength * 0.2);
 	glRotatef(-90.0, 1.0, 0.0, 0.0);
 	glutSolidCube(1.0);
@@ -529,7 +458,7 @@ void drawBooth()
 
 	// booth right
 	glPushMatrix();
-	glTranslatef(9, 0, 0);
+	glTranslatef(10, 0, 0);
 	glScalef(boothLength * 0.1, boothLength, boothLength * 0.2);
 	glRotatef(-90.0, 1.0, 0.0, 0.0);
 	glutSolidCube(1.0);
@@ -545,23 +474,11 @@ void drawBooth()
 
 	// booth bottom
 	glPushMatrix();
-	glTranslatef(0, -8, 0);
-	glScalef(boothLength * 0.8, boothLength * 0.5, boothLength * 0.2);
+	glTranslatef(0, -7, 0);
+	glScalef(boothLength, boothLength * 0.4, boothLength * 0.09);
 	glRotatef(-90.0, 1.0, 0.0, 0.0);
 	glutSolidCube(1.0);
 	glPopMatrix();
-
-
-
-	// base plate
-	//glPushMatrix();
-	// Position base with respect to parent stanchion
-	//glTranslatef(0.0, -0.25* boothLength, 0.0);
-	// Build base
-	//glScalef(baseWidth, baseLength, baseWidth);
-	//glRotatef(-90.0, 1.0, 0.0, 0.0);
-	//glutSolidCube(1.0);
-	//glPopMatrix();
 
 	glPopMatrix();
 }
@@ -665,6 +582,12 @@ void keyboard(unsigned char key, int x, int y)
 	case 'F':
 		duckAngle2 += 2.0;
 		break;
+	case 'a':
+		zoom += 2.0;
+		break;
+	case 'd':
+		zoom -= 2.0;
+		break;
 	case 's':
 		glutTimerFunc(10, animationHandler, 0);
 		break;
@@ -692,7 +615,7 @@ void animationHandler(int param)
 	else if (duckAngle >= 180.0f && duckPosX > -7.0f) {
 		duckAngle = 180.0f;
 		duckAngle2 = 0.0f;
-		duckPosX -= 0.0005;
+		duckPosX -= 0.0009;
 		duckPosY = 0;
 	}
 	else if (duckPosX <= -7.0f && duckAngle < 360.0f) {
@@ -707,7 +630,7 @@ void animationDuckFlip(int param)
 {
 	if ((duckAngle == 0.0f || duckAngle >= 360.0f) && duckPosX < 7.0f && duckAngle2 <= 90) {
 		duckAngle2 += 9;
-		glutTimerFunc(50, animationDuckFlip, 0);
+		glutTimerFunc(35, animationDuckFlip, 0);
 	}
 	else {
 		duckAngle2 = 90.0f;
