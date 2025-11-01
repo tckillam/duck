@@ -44,7 +44,7 @@ float boothLength = 20;
 
 // Control duck body rotation on base
 float duckAngle = 0;
-float duckAngle2 = 180;
+float duckAngle2 = 0;
 
 float rotateX = 0.0f;
 float rotateY = 0.0f;
@@ -61,6 +61,11 @@ float duckPosX2 = -7.0f;
 float duckPosY = 0;
 float duckDirection = 1;
 
+float cameraX = 0.0;
+float cameraY = 6.0;
+float cameraZ = 22.0;
+
+float zoom = 60.0;  // Field of view angle for perspective projection
 
 bool isDuckSpinning = false;
 
@@ -277,7 +282,7 @@ void display(void)
 	glLoadIdentity(); // M = I
 	// Create Viewing Matrix V
 	// Set up the camera at position (0, 6, 22) looking at the origin, up along positive y axis
-	gluLookAt(0.0, 6.0, 22.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0); // M = IV
+	gluLookAt(cameraX, cameraY, cameraZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0); // M = IV
 
 	// Draw Robot
 	// Apply modelling transformations M to move robot
@@ -285,11 +290,16 @@ void display(void)
 	// M = IV
 	drawDuck();
 	glPushMatrix();
+	//glRotatef(duckAngle2, -1.0, 0.0, 0); //for flipping duck
 	glTranslatef(duckPosX, duckPosY, 0);
 	glTranslatef(0, -2, 0);
 	glRotatef(duckAngle, rotateX, rotateY, rotateZ);
 	glTranslatef(0, 2, 0);
+	glPushMatrix();
+	glRotatef(duckAngle2, -1.0, 0.0, 0); //for flipping duck
 	drawBody();
+	glPopMatrix();
+	//drawBody();
 	glPopMatrix();
 	//drawBody();
 	glutTimerFunc(10, animationHandler, 0);
@@ -632,13 +642,13 @@ void reshape(int w, int h)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, (GLdouble)w / h, 0.2, 140.0);
+	gluPerspective(zoom, (GLdouble)w / h, 0.2, 140.0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 	// Set up the camera at position (0, 6, 22) looking at the origin, up along positive y axis
-	gluLookAt(0.0, 6.0, 22.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	gluLookAt(cameraX, cameraY, cameraZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 }
 
 bool stop = false;
@@ -648,33 +658,11 @@ void keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-	case 't':
+	case 'f':
 		duckAngle2 += 2.0;
 		break;
-	case 'r':
-		duckAngle += 2.0;
-		break;
-	case 'R':
-		duckAngle -= 2.0;
-		break;
-	case 'a':
-		duckPosX += 0.05;
-		break;
 	case 'F':
-		duckAngle += 2.0;
-		rotateX = -1.0;
-		rotateZ = 0.0;
-		break;
-	case 'f':
-		duckAngle += 2.0;
-		rotateX = -1.0;
-		rotateZ = 0.0;
-		break;
-	case 'g':
-		duckPosY += 0.05;
-		break;
-	case 'G':
-		duckPosY -= 0.05;
+		duckAngle2 += 2.0;
 		break;
 	case 's':
 		glutTimerFunc(10, animationHandler, 0);
@@ -729,7 +717,6 @@ void functionKeys(int key, int x, int y)
 	glutPostRedisplay();   // Trigger a window redisplay
 }
 
-
 // Mouse button callback - use only if you want to 
 void mouse(int button, int state, int x, int y)
 {
@@ -741,7 +728,6 @@ void mouse(int button, int state, int x, int y)
 		if (state == GLUT_DOWN)
 		{
 			stop = false;
-			//glutTimerFunc(10, animationHandler, 0);
 
 
 		}
@@ -756,17 +742,36 @@ void mouse(int button, int state, int x, int y)
 	default:
 		break;
 	}
-
+	printf("Coordinates: x = %.4f\n", x);
+	printf("Coordinates: y = %.4f\n\n", y);
 	glutPostRedisplay();   // Trigger a window redisplay
 }
 
-
+float mX = 0.0;
 // Mouse motion callback - use only if you want to 
 void mouseMotionHandler(int xMouse, int yMouse)
 {
 	if (currentButton == GLUT_LEFT_BUTTON)
 	{
-		;
+		if (xMouse < 0) {
+			cameraX += 0.1;
+		}
+		if (xMouse > 0.1) {
+			cameraX -= 0.1;
+		}
+	}
+	if (currentButton == GLUT_RIGHT_BUTTON)
+	{
+		if (yMouse < 0) {
+			duckPosX += 1.0;
+			printf("Coordinates: xMouse = %.4i\n", xMouse);
+			printf("Coordinates: yMouse = %.4i\n\n", yMouse);
+		}
+		if (yMouse >= 0) {
+			duckPosX -= 1.0;
+			printf("Coordinates: xMouse = %.4i\n", xMouse);
+			printf("Coordinates: yMouse = %.4i\n\n", yMouse);
+		}
 	}
 
 	glutPostRedisplay();   // Trigger a window redisplay
