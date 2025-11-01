@@ -61,7 +61,7 @@ float duckPosX2 = -7.0f;
 float duckPosY = 0;
 float duckDirection = 1;
 
-float cameraX = 0.0;
+float cameraX = 0;
 float cameraY = 6.0;
 float cameraZ = 22.0;
 
@@ -279,7 +279,7 @@ void display(void)
 	glLoadIdentity(); // M = I
 	// Create Viewing Matrix V
 	// Set up the camera at position (0, 6, 22) looking at the origin, up along positive y axis
-	gluLookAt(0, 6, 22, 0.0, 0.0, 0, 0.0, 1.0, 0.0); // M = IV
+	gluLookAt(cameraX, cameraY, cameraZ, 0.0, 0.0, 0, 0.0, 1.0, 0.0); // M = IV
 
 	// Draw Robot
 	// Apply modelling transformations M to move robot
@@ -337,8 +337,8 @@ void drawDuck()
 	glPushMatrix(); // copy M = IV and push onto the stack
 
   // write out the duck coordnates to the console in a formatted string
-	printf("Coordinates: duckPosX = %.4f\n", duckPosX);
-	printf("Coordinates: duckAngle = %.4f\n\n", duckAngle);
+	//printf("Coordinates: duckPosX = %.4f\n", duckPosX);
+	//printf("Coordinates: duckAngle = %.4f\n\n", duckAngle);
 
 	
 	glPopMatrix();
@@ -583,10 +583,14 @@ void keyboard(unsigned char key, int x, int y)
 		duckAngle2 += 2.0;
 		break;
 	case 'a':
-		zoom += 2.0;
+		if (cameraX < 10.0) {
+			cameraX += 2.0;
+		}
 		break;
 	case 'd':
-		zoom -= 2.0;
+		if (cameraX > -10.0) {
+			cameraX -= 2.0;
+		}
 		break;
 	case 's':
 		glutTimerFunc(10, animationHandler, 0);
@@ -595,8 +599,8 @@ void keyboard(unsigned char key, int x, int y)
 		stop = true;
 		break;
 	}
-
-	glutPostRedisplay();   // Trigger a window redisplay
+	printf("Coordinates: cameraX = %.4f, cameraY = %.4f, cameraZ = %.4f\n", cameraX, cameraY, cameraZ);
+	glutPostRedisplay();  // Trigger a window redisplay
 }
 
 
@@ -606,7 +610,7 @@ void animationHandler(int param)
 	if ((duckAngle == 0.0f || duckAngle >= 360.0f) && duckPosX < 7.0f) {
 		duckAngle = 0.0f;
 		duckPosY = amplitude * sin(frequency*duckPosX);
-		duckPosX += 0.00005;
+		duckPosX += 0.00003;
 	}
 	else if (duckPosX >= 7.0f && duckAngle < 180.0f) {
 		duckAngle += 0.0005;
@@ -679,37 +683,41 @@ void mouse(int button, int state, int x, int y)
 	default:
 		break;
 	}
-	printf("Coordinates: x = %.4f\n", x);
-	printf("Coordinates: y = %.4f\n\n", y);
+	//printf("Coordinates: x = %.4f\n", x);
+	//printf("Coordinates: y = %.4f\n\n", y);
 	glutPostRedisplay();   // Trigger a window redisplay
 }
 
-float mX = 0.0;
+float mX = vWidth / 2;
+float mY = vHeight / 2;
 // Mouse motion callback - use only if you want to 
 void mouseMotionHandler(int xMouse, int yMouse)
 {
 	if (currentButton == GLUT_LEFT_BUTTON)
 	{
-		if (xMouse < 0) {
-			cameraX += 0.1;
+		if (xMouse > mX && cameraX < 10.0) {
+			cameraX += 0.5;
+			mX = xMouse;
 		}
-		if (xMouse > 0.1) {
-			cameraX -= 0.1;
+		if (xMouse < mX && cameraX > -10.0) {
+			cameraX -= 0.5;
+			mX = xMouse;
 		}
 	}
 	if (currentButton == GLUT_RIGHT_BUTTON)
 	{
-		if (yMouse < 0) {
-			duckPosX += 1.0;
-			printf("Coordinates: xMouse = %.4i\n", xMouse);
-			printf("Coordinates: yMouse = %.4i\n\n", yMouse);
+		if (yMouse > mY && cameraZ < 40.0) {
+			cameraZ += 0.5;
+			mY = yMouse;
 		}
-		if (yMouse >= 0) {
-			duckPosX -= 1.0;
-			printf("Coordinates: xMouse = %.4i\n", xMouse);
-			printf("Coordinates: yMouse = %.4i\n\n", yMouse);
+		if (yMouse < mY && cameraZ > 10.0) {
+			cameraZ -= 0.5;
+			mY = yMouse;
 		}
 	}
+
+	printf("Coordinates: xMouse = %.4i\n", xMouse);
+	printf("Coordinates: yMouse = %.4i\n\n", yMouse);
 
 	glutPostRedisplay();   // Trigger a window redisplay
 }
