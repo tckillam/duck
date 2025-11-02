@@ -23,32 +23,19 @@
 const int vWidth = 650;    // Viewport width in pixels
 const int vHeight = 500;    // Viewport height in pixels
 
-// Note how everything depends on robot body dimensions so that can scale entire robot proportionately
-// just by changing robot body scale
+// Note how everything depends on duck body dimensions so that can scale entire duck proportionately
+// just by changing duck body scale
 float bodyRadius = 3.0;
 float headRadius = 0.6f * bodyRadius;
 float beakRadius = 0.6f * headRadius;
 float beakLength = 0.7f * headRadius;
 float tailRadius = 0.45f * bodyRadius;
 float tailLength = 0.5f * bodyRadius;
-
-float upperArmLength = bodyRadius;
-float upperArmWidth = 0.125f * bodyRadius;
-float gunLength = upperArmLength / 4.0f;
-float gunWidth = upperArmWidth;
-float gunDepth = upperArmWidth;
 float boothLength = 20;
-//float stanchionRadius = 0.1* bodyRadius;
-//float baseWidth = 2 * bodyRadius;
-//float baseLength = 0.25* boothLength;
 
 // Control duck body rotation on base
 float duckAngle = 0;
 float duckAngle2 = 0;
-
-float rotateX = 0.0f;
-float rotateY = 0.0f;
-float rotateZ = -1.0f;
 
 float amplitude = 0.2f;   // Height of the sine wave
 float frequency = 3.0f;   // Controls number of waves
@@ -65,20 +52,11 @@ float cameraX = 0;
 float cameraY = 6.0;
 float cameraZ = 22.0;
 
-float zoom = 60.0;  // Field of view angle for perspective projection
-
-bool isDuckSpinning = false;
-
-
-// Control arm rotation
-float shoulderAngle = -40.0;
-float gunAngle = -25.0;
-
 // Spin Cube Mesh
 float cubeAngle = 0.0;
 
-// Lighting/shading and material properties for robot - upcoming lecture - just copy for now
-// Robot RGBA material properties (NOTE: we will learn about this later in the semester)
+// Lighting/shading and material properties for duck - upcoming lecture - just copy for now
+// duck RGBA material properties (NOTE: we will learn about this later in the semester)
 GLfloat duckBody_mat_ambient[] = { 0.0f,0.0f,0.0f,1.0f };
 GLfloat duckBody_mat_specular[] = { 0.9f,0.9f,0.9f,1.0f };
 GLfloat duckBody_mat_diffuse[] = { 0.1f,0.35f,0.1f,1.0f };
@@ -133,10 +111,7 @@ void animationHandler(int param);
 void animationDuckFlip(int param);
 void drawDuck();
 void drawBody();
-//void drawHead();
 void drawBooth();
-//void drawLeftArm();
-//void drawRightArm();
 
 void drawWaterWave();
 
@@ -281,41 +256,24 @@ void display(void)
 	// Set up the camera at position (0, 6, 22) looking at the origin, up along positive y axis
 	gluLookAt(cameraX, cameraY, cameraZ, 0.0, 0.0, 0, 0.0, 1.0, 0.0); // M = IV
 
-	// Draw Robot
-	// Apply modelling transformations M to move robot
+	// Draw duck
+	// Apply modelling transformations M to move duck
 	// ModelView matrix is set to IV, where I is identity matrix
 	// M = IV
 	drawDuck();
 	glPushMatrix();
-	//glRotatef(duckAngle2, -1.0, 0.0, 0); //for flipping duck
 	glTranslatef(duckPosX, duckPosY, 0);
 	glTranslatef(0, -2, 0);
-	glRotatef(duckAngle, rotateX, rotateY, rotateZ);
+	glRotatef(duckAngle, 0.0, 0.0, -1.0);
 	glTranslatef(0, 2, 0);
+	
+	//for flipping duck
 	glPushMatrix();
-	glRotatef(duckAngle2, -1.0, 0.0, 0); //for flipping duck
+	glRotatef(duckAngle2, -1.0, 0.0, 0); 
 	drawBody();
 	glPopMatrix();
-	//drawBody();
 	glPopMatrix();
-	//drawBody();
 	glutTimerFunc(10, animationHandler, 0);
-
-
-	/*
-
-	// Example of drawing a mesh (closed cube mesh)
-	glPushMatrix();
-	  // spin cube
-	  glTranslatef(8.0, 0, 3.0);
-	  glRotatef(cubeAngle, 0.0, 1.0, 0.0);
-	  glTranslatef(-8.0, 0, -3.0);
-	  // position and draw cube
-	  glTranslatef(8.0, 0, 3.0);
-	  cubeMesh->drawCubeMesh();
-	glPopMatrix();
-
-	*/
 
 	// draw water wave
 	glPushMatrix();
@@ -336,16 +294,6 @@ void drawDuck()
 {
 	glPushMatrix(); // copy M = IV and push onto the stack
 
-  // write out the duck coordnates to the console in a formatted string
-	//printf("Coordinates: duckPosX = %.4f\n", duckPosX);
-	//printf("Coordinates: duckAngle = %.4f\n\n", duckAngle);
-
-	
-	glPopMatrix();
-
-
-	// don't want to spin fixed base plate for this duck example so this is done outside of 
-	// robot push/pop above so it doesn't "inherit" the R_y(duckAngle)
 	drawBooth();
 
 	glPopMatrix();
@@ -418,7 +366,7 @@ void drawBody()
 
 void drawHead()
 {
-	// Set robot material properties per body part. Can have seperate material properties for each part
+	// Set duck material properties per body part. Can have seperate material properties for each part
 	glMaterialfv(GL_FRONT, GL_AMBIENT, duckBody_mat_ambient);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, duckBody_mat_specular);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, duckBody_mat_diffuse);
@@ -483,74 +431,6 @@ void drawBooth()
 	glPopMatrix();
 }
 
-void drawLeftArm()
-{
-	glMaterialfv(GL_FRONT, GL_AMBIENT, duckArm_mat_ambient);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, duckArm_mat_specular);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, duckArm_mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SHININESS, duckArm_mat_shininess);
-
-	glPushMatrix();
-	// Position arm with respect to parent body
-	glTranslatef(0.5 * bodyRadius + 0.5 * upperArmWidth, 0, 0.0); // this will be done last
-
-	// build arm
-	glPushMatrix();
-	glScalef(upperArmWidth, upperArmLength, upperArmWidth);
-	glutSolidCube(1.0);
-	glPopMatrix();
-
-	glPopMatrix();
-}
-
-void drawRightArm()
-{
-	glMaterialfv(GL_FRONT, GL_AMBIENT, duckArm_mat_ambient);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, duckArm_mat_specular);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, duckArm_mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SHININESS, duckArm_mat_shininess);
-
-	glPushMatrix();
-
-	// Rotate arm at shoulder
-	glTranslatef(-(0.5 * bodyRadius + 0.5 * upperArmWidth), 0.5 * upperArmLength, 0.0);
-	glRotatef(shoulderAngle, 1.0, 0.0, 0.0);
-	glTranslatef((0.5 * bodyRadius + 0.5 * upperArmWidth), -0.5 * upperArmLength, 0.0);
-
-	// Position arm and gun with respect to parent body
-	glTranslatef(-(0.5 * bodyRadius + 0.5 * upperArmWidth), 0, 0.0);
-
-	// build arm
-	glPushMatrix();
-	glScalef(upperArmWidth, upperArmLength, upperArmWidth);
-	glutSolidCube(1.0);
-	glPopMatrix();
-
-	//  Gun
-	glMaterialfv(GL_FRONT, GL_AMBIENT, gun_mat_ambient);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, gun_mat_specular);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, gun_mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SHININESS, gun_mat_shininess);
-
-	glPushMatrix();
-	// rotate gun
-	glTranslatef(-(0.5 * bodyRadius + 0.5 * upperArmWidth), -(0.5 * upperArmLength), 0.0);
-	glRotatef(gunAngle, 1.0, 0.0, 0.0);
-	glTranslatef((0.5 * bodyRadius + 0.5 * upperArmWidth), (0.5 * upperArmLength), 0.0);
-
-	// Position gun with respect to parent arm 
-	glTranslatef(0, -(0.5 * upperArmLength + 0.5 * gunLength), 0.0);
-
-	// build gun
-	glScalef(gunWidth, gunLength, gunDepth);
-	glutSolidCube(1.0);
-	glPopMatrix();
-
-	glPopMatrix();
-
-
-}
-
 // Callback, called at initialization and whenever user resizes the window.
 void reshape(int w, int h)
 {
@@ -560,7 +440,7 @@ void reshape(int w, int h)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(zoom, (GLdouble)w / h, 0.2, 140.0);
+	gluPerspective(60.0, (GLdouble)w / h, 0.2, 140.0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -582,46 +462,32 @@ void keyboard(unsigned char key, int x, int y)
 	case 'F':
 		duckAngle2 += 2.0;
 		break;
-	case 'a':
-		if (cameraX < 10.0) {
-			cameraX += 2.0;
-		}
-		break;
-	case 'd':
-		if (cameraX > -10.0) {
-			cameraX -= 2.0;
-		}
-		break;
-	case 's':
-		glutTimerFunc(10, animationHandler, 0);
-		break;
-	case 'S':
-		stop = true;
-		break;
 	}
-	printf("Coordinates: cameraX = %.4f, cameraY = %.4f, cameraZ = %.4f\n", cameraX, cameraY, cameraZ);
 	glutPostRedisplay();  // Trigger a window redisplay
 }
 
 
-
 void animationHandler(int param)
 {
+	// animate the duck left to right in a sine wave
 	if ((duckAngle == 0.0f || duckAngle >= 360.0f) && duckPosX < 7.0f) {
 		duckAngle = 0.0f;
 		duckPosY = amplitude * sin(frequency*duckPosX);
-		duckPosX += 0.00003;
+		duckPosX += 0.00004;
 	}
+	// rotate duck down
 	else if (duckPosX >= 7.0f && duckAngle < 180.0f) {
 		duckAngle += 0.0005;
 		duckPosY = 0;
 	}
+	// animate the duck right to left
 	else if (duckAngle >= 180.0f && duckPosX > -7.0f) {
 		duckAngle = 180.0f;
 		duckAngle2 = 0.0f;
 		duckPosX -= 0.0009;
 		duckPosY = 0;
 	}
+	// rotate the duck back up
 	else if (duckPosX <= -7.0f && duckAngle < 360.0f) {
 		duckAngle += 0.0005;
 		duckPosY = 0;
@@ -630,6 +496,7 @@ void animationHandler(int param)
 	glutTimerFunc(10, animationHandler, 0);
 }
 
+// when f/F is pressed, flip the duck
 void animationDuckFlip(int param)
 {
 	if ((duckAngle == 0.0f || duckAngle >= 360.0f) && duckPosX < 7.0f && duckAngle2 <= 90) {
@@ -683,8 +550,6 @@ void mouse(int button, int state, int x, int y)
 	default:
 		break;
 	}
-	//printf("Coordinates: x = %.4f\n", x);
-	//printf("Coordinates: y = %.4f\n\n", y);
 	glutPostRedisplay();   // Trigger a window redisplay
 }
 
@@ -695,6 +560,7 @@ void mouseMotionHandler(int xMouse, int yMouse)
 {
 	if (currentButton == GLUT_LEFT_BUTTON)
 	{
+		//
 		if (xMouse > mX && cameraX < 10.0) {
 			cameraX += 0.5;
 			mX = xMouse;
@@ -715,9 +581,6 @@ void mouseMotionHandler(int xMouse, int yMouse)
 			mY = yMouse;
 		}
 	}
-
-	printf("Coordinates: xMouse = %.4i\n", xMouse);
-	printf("Coordinates: yMouse = %.4i\n\n", yMouse);
 
 	glutPostRedisplay();   // Trigger a window redisplay
 }
